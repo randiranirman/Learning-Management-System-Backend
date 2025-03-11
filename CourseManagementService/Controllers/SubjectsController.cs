@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using CourseManagementService.Models.Domains;
+using CourseManagementService.Models.DTOs;
+using CourseManagementService.Repositories;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourseManagementService.Controllers
@@ -7,17 +11,32 @@ namespace CourseManagementService.Controllers
     [ApiController]
     public class SubjectsController : ControllerBase
     {
+        private readonly ISubjectRepository subjectRepository;
+        private readonly IMapper mapper;
+
+        public SubjectsController(ISubjectRepository subjectRepository, IMapper mapper)
+        {
+            this.subjectRepository = subjectRepository;
+            this.mapper = mapper;
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetAllSubjects()
         {
-            var subjectsDomainModel = new
-            {
-                Id = 1,
-                Name = "subject 1",
-                AssignDate = new DateOnly()
-            };
+            var subjectDomainModel = await subjectRepository.GetSubjectAsync();
 
-            return Ok(subjectsDomainModel);
+            var subjectDTOModel = mapper.Map<List<SubjectDTO>>(subjectDomainModel);
+
+            return Ok(subjectDTOModel);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateSubject([FromBody] AddSubjectRequestDTO addSubjectRequestDTO)
+        {
+            var subjectDomainModel = mapper.Map<Subject>(addSubjectRequestDTO);
+            subjectDomainModel = await subjectRepository.CreateSubjectAsync(subjectDomainModel);
+
+            return Ok(mapper.Map<SubjectDTO>(subjectDomainModel));
         }
     }
 }
