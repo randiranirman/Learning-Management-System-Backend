@@ -10,6 +10,7 @@ namespace CourseManagementService.Mappings
         {
             CreateMap<Teacher, TeacherDTO>().ReverseMap();
             CreateMap<AddTeacherRequestDTO, Teacher>().ReverseMap();
+            CreateMap<UpdateTeacherRequestDTO, Teacher>().ReverseMap();
         }
     }
 }

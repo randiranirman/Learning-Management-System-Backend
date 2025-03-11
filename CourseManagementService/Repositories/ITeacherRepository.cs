@@ -9,5 +9,6 @@ namespace CourseManagementService.Repositories
         public Task<List<Teacher>> GetAllAsync();
         public Task<Teacher> CreateAsync(Teacher teacher);
         public Task<Teacher> DeleteAsync(Guid Id);
+        public Task<Teacher> UpdateAsync(Guid Id, Teacher updateTeacher);
     }
 }

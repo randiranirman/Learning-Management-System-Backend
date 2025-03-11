@@ -1,5 +1,6 @@
 ﻿using CourseManagementService.Data;
 using CourseManagementService.Models.Domains;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,6 +39,24 @@ namespace CourseManagementService.Repositories
         public async Task<List<Teacher>> GetAllAsync()
         {
             return await _context.Teachers.ToListAsync();
+        }
+
+        public async Task<Teacher?> UpdateAsync(Guid Id, Teacher updateTeacher)
+        {
+            var existingTeacher = await _context.Teachers.FirstOrDefaultAsync(teacher => teacher.Id == Id);
+
+            if (existingTeacher is null)
+                return null;
+
+            existingTeacher.FullName = updateTeacher.FullName;
+            existingTeacher.Birthday = updateTeacher.Birthday;
+            existingTeacher.Email = updateTeacher.Email;
+            existingTeacher.ContactNo = updateTeacher.ContactNo;
+            existingTeacher.Address = updateTeacher.Address;
+
+            await _context.SaveChangesAsync();
+
+            return existingTeacher;
         }
     }
 }

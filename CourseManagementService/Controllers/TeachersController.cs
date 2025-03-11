@@ -39,6 +39,20 @@ namespace CourseManagementService.Controllers
             return Ok(teacherDTOModel);
         }
 
+        [HttpPut("{Id:guid}")]
+        public async Task<IActionResult> UpdateTeacher(Guid Id, [FromBody] UpdateTeacherRequestDTO updateTeacherRequestDTO)
+        {
+            var existingTeacherDomainModel = mapper.Map<Teacher>(updateTeacherRequestDTO);
+            existingTeacherDomainModel = await teacherRepository.UpdateAsync(Id, existingTeacherDomainModel);
+
+            if (existingTeacherDomainModel is null)
+                return NotFound();
+
+            var existingTeacherDTOModel = mapper.Map<TeacherDTO>(existingTeacherDomainModel);
+
+            return Ok(existingTeacherDTOModel);
+        }
+
         [HttpDelete("{Id:guid}")]
         public async Task<IActionResult> DeleteTeacher([FromRoute] Guid Id)
         {
