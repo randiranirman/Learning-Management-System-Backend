@@ -9,6 +9,7 @@ namespace CourseManagementService.Mappings
         public AutoMapperProfile()
         {
             CreateMap<Teacher, TeacherDTO>().ReverseMap();
+            CreateMap<AddTeacherRequestDTO, Teacher>().ReverseMap();
         }
     }
 }

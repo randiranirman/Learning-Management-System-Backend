@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CourseManagementService.Models.Domains;
 using CourseManagementService.Models.DTOs;
 using CourseManagementService.Repositories;
 using Microsoft.AspNetCore.Http;
@@ -25,6 +26,28 @@ namespace CourseManagementService.Controllers
             var teacherDomainModel = await teacherRepository.GetAllAsync();
 
             return Ok(mapper.Map<List<TeacherDTO>>(teacherDomainModel));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateTeacher([FromBody] AddTeacherRequestDTO addTeacherRequestDTO)
+        {
+            var teacherDomainModel = mapper.Map<Teacher>(addTeacherRequestDTO);
+
+            teacherDomainModel = await teacherRepository.CreateAsync(teacherDomainModel);
+
+            var teacherDTOModel = mapper.Map<TeacherDTO>(teacherDomainModel);
+            return Ok(teacherDTOModel);
+        }
+
+        [HttpDelete("{Id:guid}")]
+        public async Task<IActionResult> DeleteTeacher([FromRoute] Guid Id)
+        {
+            var existingTeacher = await teacherRepository.DeleteAsync(Id);
+
+            if (existingTeacher is null)
+                return NotFound();
+
+            return Ok(existingTeacher);
         }
     }
 }
