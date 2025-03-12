@@ -1,5 +1,6 @@
 ﻿using CourseManagementService.Data;
 using CourseManagementService.Models.Domains;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace CourseManagementService.Repositories
@@ -23,6 +24,34 @@ namespace CourseManagementService.Repositories
             await _context.SaveChangesAsync();
 
             return subject;
+        }
+
+        public async Task<Subject?> DeleteSubjectAsync(Guid Code)
+        {
+            var existingSubject = await _context.Subjects.FirstOrDefaultAsync(subject => subject.Code == Code);
+
+            if (existingSubject is null)
+                return null;
+
+            _context.Remove(existingSubject);
+            await _context.SaveChangesAsync();
+
+            return existingSubject;
+        }
+
+        public async Task<Subject?> UpdateSubjectAsync(Guid Code, Subject updatedSubject)
+        {
+            var existingSubject = await _context.Subjects.FirstOrDefaultAsync(subject => subject.Code == Code);
+
+            if (existingSubject is null)
+                return null;
+
+            existingSubject.Title = updatedSubject.Title;
+            existingSubject.Grade = updatedSubject.Grade;
+
+            await _context.SaveChangesAsync();
+
+            return existingSubject;
         }
     }
 }

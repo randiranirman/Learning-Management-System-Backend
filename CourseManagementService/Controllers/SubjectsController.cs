@@ -38,5 +38,29 @@ namespace CourseManagementService.Controllers
 
             return Ok(mapper.Map<SubjectDTO>(subjectDomainModel));
         }
+
+        [HttpDelete("{Code:guid}")]
+        public async Task<IActionResult> DeleteSubject([FromRoute] Guid Code)
+        {
+            var subjectDomainModel = await subjectRepository.DeleteSubjectAsync(Code);
+
+            if (subjectDomainModel is null)
+                return NotFound();
+
+            return Ok(mapper.Map<SubjectDTO>(subjectDomainModel));
+        }
+
+        [HttpPut("{Code:guid}")]
+        public async Task<IActionResult> UpdateSubjectAsync([FromRoute] Guid Code, [FromBody] UpdateSubjectRequestDTO updateSubjectRequestDTO)
+        {
+            var subjectDomainModel = mapper.Map<Subject>(updateSubjectRequestDTO);
+
+            subjectDomainModel = await subjectRepository.UpdateSubjectAsync(Code, subjectDomainModel);
+
+            if (subjectDomainModel is null)
+                return NotFound();
+
+            return Ok(mapper.Map<SubjectDTO>(subjectDomainModel));
+        }
     }
 }
