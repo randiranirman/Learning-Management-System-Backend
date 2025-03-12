@@ -67,20 +67,23 @@ public partial class LmsContext : DbContext
 
         modelBuilder.Entity<TeacherSubject>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("TeacherSubject");
+            entity.HasKey(ts => new { ts.TeacherId, ts.SubjectCode }); 
 
-            entity.HasOne(d => d.SubjectCodeNavigation).WithMany()
-                .HasForeignKey(d => d.SubjectCode)
+            entity.ToTable("TeacherSubject");
+
+            entity.HasOne(ts => ts.SubjectCodeNavigation)
+                .WithMany()
+                .HasForeignKey(ts => ts.SubjectCode)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__TeacherSu__Subje__412EB0B6");
 
-            entity.HasOne(d => d.Teacher).WithMany()
-                .HasForeignKey(d => d.TeacherId)
+            entity.HasOne(ts => ts.Teacher)
+                .WithMany()
+                .HasForeignKey(ts => ts.TeacherId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__TeacherSu__Teach__403A8C7D");
         });
+
 
         OnModelCreatingPartial(modelBuilder);
     }

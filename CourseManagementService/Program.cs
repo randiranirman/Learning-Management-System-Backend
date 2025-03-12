@@ -19,6 +19,7 @@ builder.Services.AddDbContext<LmsContext>(options =>
 
 builder.Services.AddScoped<ITeacherRepository, SQLTeacherRepository>();
 builder.Services.AddScoped<ISubjectRepository, SQLSubjectRepository>();
+builder.Services.AddScoped<ITeacherSubjectRepository, SQLTeacherSubjectRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 

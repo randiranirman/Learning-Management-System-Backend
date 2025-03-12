@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CourseManagementService.Models.Domains;
 
 public partial class TeacherSubject
 {
+    [Key]
+    [Column(Order = 1)]
     public Guid TeacherId { get; set; }
 
+    [Key]
+    [Column(Order = 2)]
     public Guid SubjectCode { get; set; }
 
     public virtual Subject SubjectCodeNavigation { get; set; } = null!;

@@ -14,6 +14,7 @@ namespace CourseManagementService.Mappings
             CreateMap<Subject, SubjectDTO>().ReverseMap();
             CreateMap<AddSubjectRequestDTO, Subject>().ReverseMap();
             CreateMap<Subject, UpdateSubjectRequestDTO>().ReverseMap();
+            CreateMap<TeacherSubject, TeacherSubjectDTO>().ReverseMap();
         }
     }
 }

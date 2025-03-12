@@ -1,5 +1,6 @@
 ﻿using CourseManagementService.Data;
 using CourseManagementService.Models.Domains;
+using CourseManagementService.Models.DTOs;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,9 +19,18 @@ namespace CourseManagementService.Repositories
             return await _context.Subjects.ToListAsync();
         }
 
-        public async Task<Subject> CreateSubjectAsync(Subject subject)
+        public async Task<Subject> CreateSubjectAsync(Subject subject, Guid teacherId)
         {
             await _context.Subjects.AddAsync(subject);
+            await _context.SaveChangesAsync();
+
+            var newTeacherSubject = new TeacherSubject
+            {
+                TeacherId = teacherId,
+                SubjectCode = subject.Code
+            };
+
+            await _context.TeacherSubjects.AddAsync(newTeacherSubject);
             await _context.SaveChangesAsync();
 
             return subject;

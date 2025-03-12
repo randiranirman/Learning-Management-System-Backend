@@ -31,12 +31,20 @@ namespace CourseManagementService.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateSubject([FromBody] AddSubjectRequestDTO addSubjectRequestDTO)
+        public async Task<IActionResult> CreateSubject([FromBody] AddSubjectRequestDTO addSubjectRequestDTO, Guid assignTeacherId)
         {
             var subjectDomainModel = mapper.Map<Subject>(addSubjectRequestDTO);
-            subjectDomainModel = await subjectRepository.CreateSubjectAsync(subjectDomainModel);
+            subjectDomainModel = await subjectRepository.CreateSubjectAsync(subjectDomainModel, assignTeacherId);
 
-            return Ok(mapper.Map<SubjectDTO>(subjectDomainModel));
+            var newCreatedSubjectDTO = new CreatedSubjectDTO
+            {
+                Code = subjectDomainModel.Code,
+                Title = subjectDomainModel.Title,
+                Grade = subjectDomainModel.Grade,
+                TeacherID = assignTeacherId
+            };
+
+            return Ok(newCreatedSubjectDTO);
         }
 
         [HttpDelete("{Code:guid}")]
