@@ -24,7 +24,13 @@ namespace CourseManagementService.Controllers
         {
             var teacherSubjectDomainModel = await teacherSubjectRepository.GetTeacherSubjectAsync();
 
-            return Ok(mapper.Map<List<TeacherSubjectDTO>>(teacherSubjectDomainModel));
+            // TeacherSubject(Domain model) => TeacherSubjectDTO
+            var prevResponesType = mapper.Map<List<TeacherSubjectDTO>>(teacherSubjectDomainModel);
+
+            // TeacherSubject(Domain model) => CreatedSubjectDTO
+            var newResponseTypeForFrontend = mapper.Map<List<CreatedSubjectDTO>>(teacherSubjectDomainModel); // didn't work
+
+            return Ok(prevResponesType);
         }
     }
 }

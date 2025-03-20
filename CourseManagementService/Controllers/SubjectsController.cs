@@ -12,11 +12,15 @@ namespace CourseManagementService.Controllers
     public class SubjectsController : ControllerBase
     {
         private readonly ISubjectRepository subjectRepository;
+        private readonly ITeacherRepository teacherRepository;
+        private readonly ITeacherSubjectRepository teacherSubjectRepository;
         private readonly IMapper mapper;
 
-        public SubjectsController(ISubjectRepository subjectRepository, IMapper mapper)
+        public SubjectsController(ISubjectRepository subjectRepository, IMapper mapper, ITeacherRepository teacherRepository, ITeacherSubjectRepository teacherSubjectRepository)
         {
+            this.teacherRepository = teacherRepository;
             this.subjectRepository = subjectRepository;
+            this.teacherSubjectRepository = teacherSubjectRepository;
             this.mapper = mapper;
         }
 
@@ -30,45 +34,86 @@ namespace CourseManagementService.Controllers
             return Ok(subjectDTOModel);
         }
 
+        [HttpGet("{Code:guid}")]
+        public async Task<IActionResult> GetSubjectById([FromRoute] Guid Code)
+        {
+            var subjectDomainModel = await subjectRepository.GetSubjectByIdAsync(Code);
+
+            if (subjectDomainModel is null)
+                return NotFound();
+
+            return Ok(subjectDomainModel);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateSubject([FromBody] AddSubjectRequestDTO addSubjectRequestDTO, Guid assignTeacherId)
         {
             var subjectDomainModel = mapper.Map<Subject>(addSubjectRequestDTO);
             subjectDomainModel = await subjectRepository.CreateSubjectAsync(subjectDomainModel, assignTeacherId);
 
-            var newCreatedSubjectDTO = new CreatedSubjectDTO
+            var assignedTeacher = await teacherRepository.GetByIdAsync(assignTeacherId);
+
+            if (assignedTeacher == null)
             {
-                Code = subjectDomainModel.Code,
-                Title = subjectDomainModel.Title,
-                Grade = subjectDomainModel.Grade,
-                TeacherID = assignTeacherId
+                return NotFound($"Teacher with ID {assignTeacherId} not found.");
+            }
+
+            // change DTO type for better usage of frontend
+            var newTeacherSubjectDTO = new TeacherSubjectDTO
+            {
+                TeacherId = assignedTeacher.Id,
+                SubjectCode = subjectDomainModel.Code,
+                SubjectCodeNavigation = subjectDomainModel,
+                Teacher = assignedTeacher
             };
 
-            return Ok(newCreatedSubjectDTO);
+            return Ok(newTeacherSubjectDTO);
         }
 
         [HttpDelete("{Code:guid}")]
         public async Task<IActionResult> DeleteSubject([FromRoute] Guid Code)
         {
-            var subjectDomainModel = await subjectRepository.DeleteSubjectAsync(Code);
 
-            if (subjectDomainModel is null)
+            var subjectDomainModel = await subjectRepository.GetSubjectByIdAsync(Code);
+            Console.WriteLine("Response 02 " + subjectDomainModel.Title + subjectDomainModel.Code + subjectDomainModel.Grade);
+
+            var teacherSubjectDomainModel = await subjectRepository.DeleteSubjectAsync(Code);
+            Console.WriteLine("Response from delete function: " + teacherSubjectDomainModel.SubjectCode + " " + teacherSubjectDomainModel.TeacherId);
+
+            if (teacherSubjectDomainModel is null)
                 return NotFound();
 
-            return Ok(mapper.Map<SubjectDTO>(subjectDomainModel));
+            var deletedTeacherSubjectDomainModel = new TeacherSubject
+            {
+                TeacherId = teacherSubjectDomainModel.TeacherId,
+                SubjectCode = teacherSubjectDomainModel.SubjectCode,
+                SubjectCodeNavigation = subjectDomainModel,
+                Teacher = await teacherRepository.GetByIdAsync(teacherSubjectDomainModel.TeacherId)
+            };
+
+            return Ok(deletedTeacherSubjectDomainModel);
         }
 
         [HttpPut("{Code:guid}")]
         public async Task<IActionResult> UpdateSubjectAsync([FromRoute] Guid Code, [FromBody] UpdateSubjectRequestDTO updateSubjectRequestDTO)
         {
-            var subjectDomainModel = mapper.Map<Subject>(updateSubjectRequestDTO);
 
-            subjectDomainModel = await subjectRepository.UpdateSubjectAsync(Code, subjectDomainModel);
+            var updatedSubjectDomainModel = new Subject
+            {
+                Title = updateSubjectRequestDTO.Title,
+                Grade = updateSubjectRequestDTO.Grade
+            };
 
-            if (subjectDomainModel is null)
+            var assignedTeacherId = updateSubjectRequestDTO.AssignedTeacherId;
+
+            updatedSubjectDomainModel = await subjectRepository.UpdateSubjectAsync(Code, updatedSubjectDomainModel, assignedTeacherId);
+
+            var updatedTeacherSubjectDomainModel = await teacherSubjectRepository.GetTeacherSubjectById(Code);
+
+            if (updatedSubjectDomainModel is null)
                 return NotFound();
 
-            return Ok(mapper.Map<SubjectDTO>(subjectDomainModel));
+            return Ok(updatedTeacherSubjectDomainModel);
         }
     }
 }

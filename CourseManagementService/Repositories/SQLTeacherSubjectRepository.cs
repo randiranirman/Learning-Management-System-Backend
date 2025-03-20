@@ -15,5 +15,15 @@ namespace CourseManagementService.Repositories
         {
             return await _context.TeacherSubjects.Include("SubjectCodeNavigation").Include("Teacher").ToListAsync();
         }
+
+        public async Task<TeacherSubject?> GetTeacherSubjectById(Guid subjectCode)
+        {
+            var existingTeacherSubject = await _context.TeacherSubjects.Include("SubjectCodeNavigation").Include("Teacher").FirstOrDefaultAsync(teacherSubject => teacherSubject.SubjectCode == subjectCode);
+
+            if (existingTeacherSubject is null)
+                return null;
+
+            return existingTeacherSubject;
+        }
     }
 }

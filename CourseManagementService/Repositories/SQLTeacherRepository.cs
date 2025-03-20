@@ -41,6 +41,19 @@ namespace CourseManagementService.Repositories
             return await _context.Teachers.ToListAsync();
         }
 
+        public async Task<Teacher?> GetByIdAsync(Guid Id)
+        {
+            var existingTeacher = await _context.Teachers.FirstOrDefaultAsync(teacher => teacher.Id == Id);
+
+            if (existingTeacher == null)
+            {
+                Console.WriteLine($"Teacher with ID {Id} not found in the database.");
+            }
+
+            return existingTeacher;
+        }
+
+
         public async Task<Teacher?> UpdateAsync(Guid Id, Teacher updateTeacher)
         {
             var existingTeacher = await _context.Teachers.FirstOrDefaultAsync(teacher => teacher.Id == Id);
